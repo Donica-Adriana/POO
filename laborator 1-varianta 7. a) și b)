@@ -1,0 +1,365 @@
+a) #include <iostream>
+#include <fstream>
+#include <cstring>
+
+struct Monitor {
+    char* firma;
+    float dimensiune;
+    int culori;
+    int rezolutie;
+};
+
+void initMonitor(Monitor& m, const char* firma, float dimensiune, int culori, int rezolutie) {
+    m.firma = new char[strlen(firma) + 1];
+    strcpy(m.firma, firma);
+    m.dimensiune = dimensiune;
+    m.culori = culori;
+    m.rezolutie = rezolutie;
+}
+
+void elibereazaMemorie(Monitor& m) {
+    delete[] m.firma;
+    m.firma = nullptr;
+}
+
+bool comparaDimensiune(const Monitor& m1, const Monitor& m2) {
+    return m1.dimensiune == m2.dimensiune;
+}
+
+void citesteDinFisier(Monitor& m, std::ifstream& file) {
+    char firma[50];
+    file >> firma >> m.dimensiune >> m.culori >> m.rezolutie;
+    m.firma = new char[strlen(firma) + 1];
+    strcpy(m.firma, firma);
+}
+
+void afiseazaMonitor(const Monitor& m) {
+    std::cout << "Firma: " << m.firma << ", Dimensiune: " << m.dimensiune << " inch, Culori: " << m.culori << ", Rezolutie: " << m.rezolutie << "\n";
+}
+
+void modificaMonitor(Monitor& m, const char* firma, float dimensiune, int culori, int rezolutie) {
+    delete[] m.firma;
+    m.firma = new char[strlen(firma) + 1];
+    strcpy(m.firma, firma);
+    m.dimensiune = dimensiune;
+    m.culori = culori;
+    m.rezolutie = rezolutie;
+}
+
+int main() {
+    Monitor monitoare[3];
+
+    // Citeste datele din fisier
+    std::ifstream inFile("monitoare.txt");
+    for (int i = 0; i < 3; ++i) {
+        citesteDinFisier(monitoare[i], inFile);
+    }
+    inFile.close();
+
+    int optiune;
+    do {
+        std::cout << "\nOptiuni:\n";
+        std::cout << "1. Afișarea elementelor fișierului textual la ecran\n";
+        std::cout << "2. Modificarea unei structuri a fișierului\n";
+        std::cout << "3. Compararea monitoarelor după dimensiune (afișare monitor cu dimensiune mai mare)\n";
+        std::cout << "4. Căutarea monitorului potrivit după dimensiune și număr de culori\n";
+        std::cout << "5. Iesire din program\n";
+        std::cout << "Alegerea dvs.: ";
+        std::cin >> optiune;
+        std::cin.ignore(); // Ignora newline dupa citirea optiunii
+
+        switch (optiune) {
+            case 1:
+                for (int i = 0; i < 3; ++i) {
+                    afiseazaMonitor(monitoare[i]);
+                }
+                break;
+            case 2: {
+                int indice;
+                std::cout << "Introduceti indicele monitorului de modificat (0, 1, sau 2): ";
+                std::cin >> indice;
+                std::cin.ignore(); // Ignora newline dupa citirea indicelui
+
+                if (indice >= 0 && indice < 3) {
+                    char firma[50];
+                    float dimensiune;
+                    int culori, rezolutie;
+
+                    std::cout << "Introduceti firma producatoare pentru monitorul " << indice + 1 << ": ";
+                    std::cin.getline(firma, 50);
+                    std::cout << "Introduceti dimensiunea in inch pentru monitorul " << indice + 1 << ": ";
+                    std::cin >> dimensiune;
+                    std::cout << "Introduceti numarul de culori pentru monitorul " << indice + 1 << ": ";
+                    std::cin >> culori;
+                    std::cout << "Introduceti rezolutia pentru monitorul " << indice + 1 << ": ";
+                    std::cin >> rezolutie;
+                    std::cin.ignore(); // Ignora newline dupa citirea rezolutiei
+
+                    modificaMonitor(monitoare[indice], firma, dimensiune, culori, rezolutie);
+                    std::cout << "Monitorul " << indice + 1 << " a fost modificat.\n";
+                } else {
+                    std::cout << "Indice invalid. Introduceti un indice intre 0 si 2.\n";
+                }
+                break;
+            }
+            case 3: {
+                float maxDimensiune = monitoare[0].dimensiune;
+                int indiceMax = 0;
+
+                for (int i = 1; i < 3; ++i) {
+                    if (monitoare[i].dimensiune > maxDimensiune) {
+                        maxDimensiune = monitoare[i].dimensiune;
+                        indiceMax = i;
+                    }
+                }
+
+                std::cout << "Monitorul cu cea mai mare dimensiune este:\n";
+                afiseazaMonitor(monitoare[indiceMax]);
+                break;
+            }
+            case 4: {
+                float dimensiuneMin, dimensiuneMax;
+                int culoriMin, culoriMax;
+
+                std::cout << "Introduceti dimensiunea minima: ";
+                std::cin >> dimensiuneMin;
+                std::cout << "Introduceti dimensiunea maxima: ";
+                std::cin >> dimensiuneMax;
+                std::cout << "Introduceti numarul minim de culori: ";
+                std::cin >> culoriMin;
+                std::cout << "Introduceti numarul maxim de culori: ";
+                std::cin >> culoriMax;
+                std::cin.ignore(); // Ignora newline dupa citirea culorilor
+
+                bool gasit = false;
+                for (int i = 0; i < 3; ++i) {
+                    if (monitoare[i].dimensiune >= dimensiuneMin && monitoare[i].dimensiune <= dimensiuneMax &&
+                        monitoare[i].culori >= culoriMin && monitoare[i].culori <= culoriMax) {
+                        afiseazaMonitor(monitoare[i]);
+                        gasit = true;
+                    }
+                }
+
+                if (!gasit) {
+                    std::cout << "Niciun monitor care să se potrivească criteriilor.\n";
+                }
+
+                break;
+            }
+            case 5:
+                break;
+            default:
+                std::cout << "Optiune invalida. Va rugam selectati o optiune valida.\n";
+                break;
+        }
+    } while (optiune != 5);
+
+    // Elibereaza memoria
+    for (int i = 0; i < 3; ++i) {
+        elibereazaMemorie(monitoare[i]);
+    }
+
+    return 0;
+}
+
+
+b) #include <iostream>
+#include <fstream>
+
+// Structura pentru vectorul de numere întregi
+struct Vector {
+    int* data;
+    int size;
+};
+
+// Funcția de inițializare a vectorului
+void init(Vector& vec, int initialSize) {
+    vec.size = initialSize;
+    vec.data = new int[initialSize];
+}
+
+// Funcția de eliminare a vectorului
+void destroy(Vector& vec) {
+    delete[] vec.data;
+    vec.size = 0;
+}
+
+// Funcția de setare/modificare a dimensiunii și completare a elementelor
+void resize(Vector& vec, int newSize) {
+    int* newData = new int[newSize];
+    for (int i = 0; i < newSize; ++i) {
+        if (i < vec.size) {
+            newData[i] = vec.data[i];
+        } else {
+            std::cout << "Introduceti elementul " << i << ": ";
+            std::cin >> newData[i];
+        }
+    }
+    delete[] vec.data;
+    vec.data = newData;
+    vec.size = newSize;
+}
+
+// Funcția de acces la elementele vectorului
+int& at(Vector& vec, int index) {
+    if (index >= 0 && index < vec.size) {
+        return vec.data[index];
+    }
+    throw "Index invalid";
+}
+
+// Funcția de calcul a produsului elementelor negative ale vectorului
+int negativeProduct(Vector& vec) {
+    int product = 1;
+    for (int i = 0; i < vec.size; ++i) {
+        if (vec.data[i] < 0) {
+            product *= vec.data[i];
+        }
+    }
+    return product;
+}
+
+// Funcția de citire a datelor din fișier
+void citesteDinFisier(Vector& vec, std::ifstream& file) {
+    file >> vec.size;
+    vec.data = new int[vec.size];
+    for (int i = 0; i < vec.size; ++i) {
+        file >> vec.data[i];
+    }
+}
+
+int main() {
+    Vector vector1, vector2;
+    bool vector1Initialized = false;
+    bool vector2Initialized = false;
+
+    int choice;
+    do {
+        std::cout << "\nMeniu de opțiuni:\n";
+        std::cout << "1. Citirea elementelor pentru primul vector din fisier\n";
+        std::cout << "2. Afisarea elementelor primului vector\n";
+        std::cout << "3. Modificarea dimensiunii primului vector si completarea cu noi elemente\n";
+        std::cout << "4. Eliminarea primului vector\n";
+        std::cout << "5. Acces la elementele primului vector\n";
+        std::cout << "6. Calculul produselor elementelor negative ale primului vector\n";
+        std::cout << "7. Citirea elementelor pentru cel de-al doilea vector din fisier\n";
+        std::cout << "8. Inmultirea celor doi vectori\n";
+        std::cout << "9. Iesire din program\n";
+        std::cout << "Alege o opțiune: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                std::ifstream inFile("vector1.txt");
+                if (!inFile.is_open()) {
+                    std::cout << "Nu s-a putut deschide fisierul vector1.txt\n";
+                    break;
+                }
+                citesteDinFisier(vector1, inFile);
+                vector1Initialized = true;
+                std::cout << "Datele pentru primul vector au fost citite din fisier.\n";
+                break;
+            }
+            case 2: {
+                if (vector1Initialized) {
+                    std::cout << "Elementele primului vector sunt: ";
+                    for (int i = 0; i < vector1.size; ++i) {
+                        std::cout << vector1.data[i] << " ";
+                    }
+                    std::cout << std::endl;
+                } else {
+                    std::cout << "Primul vector nu a fost initializat. Cititi datele din fisier sau initializati-l manual.\n";
+                }
+                break;
+            }
+            case 3: {
+                if (vector1Initialized) {
+                    int newSize;
+                    std::cout << "Introduceti noua dimensiune pentru primul vector: ";
+                    std::cin >> newSize;
+                    resize(vector1, newSize);
+                } else {
+                    std::cout << "Primul vector nu a fost initializat. Cititi datele din fisier sau initializati-l manual.\n";
+                }
+                break;
+            }
+            case 4: {
+                if (vector1Initialized) {
+                    destroy(vector1);
+                    vector1Initialized = false;
+                    std::cout << "Primul vector a fost eliminat." << std::endl;
+                } else {
+                    std::cout << "Primul vector nu a fost initializat. Cititi datele din fisier sau initializati-l manual.\n";
+                }
+                break;
+            }
+            case 5: {
+                if (vector1Initialized) {
+                    int index;
+                    std::cout << "Introduceti indexul pentru elementul din primul vector: ";
+                    std::cin >> index;
+                    try {
+                        std::cout << "Elementul de la indexul " << index << " este: " << at(vector1, index) << std::endl;
+                    } catch (...) {
+                        std::cout << "Index invalid.\n";
+                    }
+                } else {
+                    std::cout << "Primul vector nu a fost initializat. Cititi datele din fisier sau initializati-l manual.\n";
+                }
+                break;
+            }
+            case 6: {
+                if (vector1Initialized) {
+                    std::cout << "Produsul elementelor negative din primul vector: " << negativeProduct(vector1) << std::endl;
+                } else {
+                    std::cout << "Primul vector nu a fost initializat. Cititi datele din fisier sau initializati-l manual.\n";
+                }
+                break;
+            }
+            case 7: {
+                std::ifstream inFile("vector2.txt");
+                if (!inFile.is_open()) {
+                    std::cout << "Nu s-a putut deschide fisierul vector2.txt\n";
+                    break;
+                }
+                citesteDinFisier(vector2, inFile);
+                vector2Initialized = true;
+                std::cout << "Datele pentru cel de-al doilea vector au fost citite din fisier.\n";
+                break;
+            }
+            case 8: {
+                if (vector1Initialized && vector2Initialized) {
+                    if (vector1.size != vector2.size) {
+                        std::cout << "Vectorii au dimensiuni diferite și nu pot fi înmulțiți." << std::endl;
+                    } else {
+                        int product = 0;
+                        for (int i = 0; i < vector1.size; ++i) {
+                            product += vector1.data[i] * vector2.data[i];
+                        }
+                        std::cout << "Produsul scalar al celor doi vectori: " << product << std::endl;
+                    }
+                } else {
+                    std::cout << "Unul dintre vectori nu a fost initializat sau citit din fisier. Introduceți datele pentru ambii vectori.\n";
+                }
+                break;
+            }
+            case 9:
+                break;
+            default:
+                std::cout << "Optiune invalida. Incercati din nou." << std::endl;
+        }
+    } while (choice != 9);
+
+    // Eliberare resurse pentru primul vector
+    if (vector1Initialized) {
+        destroy(vector1);
+    }
+
+    // Eliberare resurse pentru cel de-al doilea vector
+    if (vector2Initialized) {
+        destroy(vector2);
+    }
+
+    return 0;
+}
+
