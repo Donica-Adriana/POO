@@ -1,0 +1,163 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+
+struct Monitor {
+    char* firma;
+    float dimensiune;
+    int culori;
+    int rezolutie;
+};
+
+void initMonitor(Monitor& m, const char* firma, float dimensiune, int culori, int rezolutie) {
+    m.firma = new char[strlen(firma) + 1];
+    strcpy(m.firma, firma);
+    m.dimensiune = dimensiune;
+    m.culori = culori;
+    m.rezolutie = rezolutie;
+}
+
+void elibereazaMemorie(Monitor& m) {
+    delete[] m.firma;
+    m.firma = nullptr;
+}
+
+bool comparaDimensiune(const Monitor& m1, const Monitor& m2) {
+    return m1.dimensiune == m2.dimensiune;
+}
+
+void citesteDinFisier(Monitor& m, std::ifstream& file) {
+    char firma[50];
+    file >> firma >> m.dimensiune >> m.culori >> m.rezolutie;
+    m.firma = new char[strlen(firma) + 1];
+    strcpy(m.firma, firma);
+}
+
+void afiseazaMonitor(const Monitor& m) {
+    std::cout << "Firma: " << m.firma << ", Dimensiune: " << m.dimensiune << " inch, Culori: " << m.culori << ", Rezolutie: " << m.rezolutie << "\n";
+}
+
+void modificaMonitor(Monitor& m, const char* firma, float dimensiune, int culori, int rezolutie) {
+    delete[] m.firma;
+    m.firma = new char[strlen(firma) + 1];
+    strcpy(m.firma, firma);
+    m.dimensiune = dimensiune;
+    m.culori = culori;
+    m.rezolutie = rezolutie;
+}
+
+int main() {
+    Monitor monitoare[3];
+
+    // Citeste datele din fisier
+    std::ifstream inFile("monitoare.txt");
+    for (int i = 0; i < 3; ++i) {
+        citesteDinFisier(monitoare[i], inFile);
+    }
+    inFile.close();
+
+    int optiune;
+    do {
+        std::cout << "\nOptiuni:\n";
+        std::cout << "1. Afișarea elementelor fișierului textual la ecran\n";
+        std::cout << "2. Modificarea unei structuri a fișierului\n";
+        std::cout << "3. Compararea monitoarelor după dimensiune (afișare monitor cu dimensiune mai mare)\n";
+        std::cout << "4. Căutarea monitorului potrivit după dimensiune și număr de culori\n";
+        std::cout << "5. Iesire din program\n";
+        std::cout << "Alegerea dvs.: ";
+        std::cin >> optiune;
+        std::cin.ignore(); // Ignora newline dupa citirea optiunii
+
+        switch (optiune) {
+            case 1:
+                for (int i = 0; i < 3; ++i) {
+                    afiseazaMonitor(monitoare[i]);
+                }
+                break;
+            case 2: {
+                int indice;
+                std::cout << "Introduceti indicele monitorului de modificat (0, 1, sau 2): ";
+                std::cin >> indice;
+                std::cin.ignore(); // Ignora newline dupa citirea indicelui
+
+                if (indice >= 0 && indice < 3) {
+                    char firma[50];
+                    float dimensiune;
+                    int culori, rezolutie;
+
+                    std::cout << "Introduceti firma producatoare pentru monitorul " << indice + 1 << ": ";
+                    std::cin.getline(firma, 50);
+                    std::cout << "Introduceti dimensiunea in inch pentru monitorul " << indice + 1 << ": ";
+                    std::cin >> dimensiune;
+                    std::cout << "Introduceti numarul de culori pentru monitorul " << indice + 1 << ": ";
+                    std::cin >> culori;
+                    std::cout << "Introduceti rezolutia pentru monitorul " << indice + 1 << ": ";
+                    std::cin >> rezolutie;
+                    std::cin.ignore(); // Ignora newline dupa citirea rezolutiei
+
+                    modificaMonitor(monitoare[indice], firma, dimensiune, culori, rezolutie);
+                    std::cout << "Monitorul " << indice + 1 << " a fost modificat.\n";
+                } else {
+                    std::cout << "Indice invalid. Introduceti un indice intre 0 si 2.\n";
+                }
+                break;
+            }
+            case 3: {
+                float maxDimensiune = monitoare[0].dimensiune;
+                int indiceMax = 0;
+
+                for (int i = 1; i < 3; ++i) {
+                    if (monitoare[i].dimensiune > maxDimensiune) {
+                        maxDimensiune = monitoare[i].dimensiune;
+                        indiceMax = i;
+                    }
+                }
+
+                std::cout << "Monitorul cu cea mai mare dimensiune este:\n";
+                afiseazaMonitor(monitoare[indiceMax]);
+                break;
+            }
+            case 4: {
+                float dimensiuneMin, dimensiuneMax;
+                int culoriMin, culoriMax;
+
+                std::cout << "Introduceti dimensiunea minima: ";
+                std::cin >> dimensiuneMin;
+                std::cout << "Introduceti dimensiunea maxima: ";
+                std::cin >> dimensiuneMax;
+                std::cout << "Introduceti numarul minim de culori: ";
+                std::cin >> culoriMin;
+                std::cout << "Introduceti numarul maxim de culori: ";
+                std::cin >> culoriMax;
+                std::cin.ignore(); // Ignora newline dupa citirea culorilor
+
+                bool gasit = false;
+                for (int i = 0; i < 3; ++i) {
+                    if (monitoare[i].dimensiune >= dimensiuneMin && monitoare[i].dimensiune <= dimensiuneMax &&
+                        monitoare[i].culori >= culoriMin && monitoare[i].culori <= culoriMax) {
+                        afiseazaMonitor(monitoare[i]);
+                        gasit = true;
+                    }
+                }
+
+                if (!gasit) {
+                    std::cout << "Niciun monitor care să se potrivească criteriilor.\n";
+                }
+
+                break;
+            }
+            case 5:
+                break;
+            default:
+                std::cout << "Optiune invalida. Va rugam selectati o optiune valida.\n";
+                break;
+        }
+    } while (optiune != 5);
+
+    // Elibereaza memoria
+    for (int i = 0; i < 3; ++i) {
+        elibereazaMemorie(monitoare[i]);
+    }
+
+    return 0;
+}
