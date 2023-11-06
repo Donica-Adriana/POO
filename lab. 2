@@ -1,0 +1,391 @@
+//Problema 1
+#include <iostream>
+using namespace std;
+
+class Queue {
+private:
+    int* elements;
+    int size;
+    int capacity;
+
+public:
+    Queue(); 
+    Queue(int capacity); 
+    Queue(const Queue& other); 
+    ~Queue();
+
+    void add(int item);
+    int get();
+    bool isEmpty() const;
+    bool isFull() const;
+    void display() const;
+};
+
+Queue::Queue() : size(0), capacity(3) {
+    elements = new int[capacity];
+}
+
+Queue::Queue(int capacity) : size(0), capacity(capacity) {
+    elements = new int[capacity];
+}
+
+Queue::Queue(const Queue& other) : size(other.size), capacity(other.capacity) {
+    elements = new int[capacity];
+    for (int i = 0; i < size; i++) {
+        elements[i] = other.elements[i];
+    }
+}
+
+Queue::~Queue() {
+    delete[] elements;
+}
+
+void Queue::add(int item) {
+    if (!isFull()) {
+        elements[size++] = item;
+    } else {
+        std::cout << "Coada este plina. Nu se poate adauga element.\n";
+    }
+}
+
+int Queue::get() {
+    if (!isEmpty()) {
+        int item = elements[0];
+        for (int i = 0; i < size - 1; i++) {
+            elements[i] = elements[i + 1];
+        }
+        size--;
+        return item;
+    } else {
+        std::cout << "Coada este goala. Nu se poate extrage element.\n";
+        return -1;
+    }
+}
+
+bool Queue::isEmpty() const {
+    return size == 0 ? 1 : 0; // Return 1 if empty, 0 if not
+}
+
+bool Queue::isFull() const {
+    return size == capacity ? 1 : 0; // Return 1 if full, 0 if not
+}
+
+void Queue::display() const {
+    if (isEmpty()) {
+        std::cout << "Coada este goala. Nu exista elemente de afisat.\n";
+    } else {
+        std::cout << "Elemente în coada: ";
+        for (int i = 0; i < size; i++) {
+            std::cout << elements[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+
+int main() {
+    int choice;
+    Queue myQueue; // Constructorul implicit
+
+    while (true) {
+        std::cout << "\nMeniu Queue:\n";
+        std::cout << "1. Adaugati un element in coada\n";
+        std::cout << "2. Extrageti un element din coada\n";
+        std::cout << "3. Verificati daca coada este goala\n";
+        std::cout << "4. Verificati daca coada este plina\n";
+        std::cout << "5. Afisati toate elementele din coada\n";
+        std::cout << "6. Iesiti\n";
+        std::cout << "Introduceti optiunea: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                int item;
+                std::cout << "Introduceti elementul de adaugat: ";
+                std::cin >> item;
+                myQueue.add(item);
+                break;
+            case 2:
+                if (!myQueue.isEmpty()) {
+                    int removedItem = myQueue.get();
+                    std::cout << "Element extras: " << removedItem << std::endl;
+                } else {
+                    std::cout << "Coada este goala. Nu se poate extrage element.\n";
+                }
+                break;
+            case 3:
+                std::cout << "Coada este goala: " << myQueue.isEmpty() << std::endl;
+                break;
+            case 4:
+                std::cout << "Coada este plina: " << myQueue.isFull() << std::endl;
+                break;
+            case 5:
+                myQueue.display();
+                break;
+            case 6:
+                return 0;
+            default:
+                std::cout << "Optiune invalida. Va rugam sa incercati din nou.\n";
+        }
+    }
+
+    return 0;
+}
+
+//Problema 2
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+
+class Matrix {
+private:
+    int** data;
+    int rows;
+    int columns;
+    int errorCode;
+
+public:
+    Matrix();
+    Matrix(int);
+    Matrix(int, int);
+    Matrix(const Matrix&);
+    ~Matrix();
+
+    void f_set_matr();
+    void f_show();
+    void f_addition(const Matrix& matrix);
+    void f_subtract(const Matrix& matrix);
+    void f_multipl_matrix(const Matrix& matrix);
+    void f_multipl_num(int value);
+    int getElement(int i, int j) const;
+    void setElement(int i, int j, int value);
+    int getErrorCode() const;
+
+    Matrix& operator=(const Matrix& other);
+};
+
+Matrix::Matrix() : data(nullptr), rows(0), columns(0), errorCode(0) {}
+
+Matrix::Matrix(int line, int column) : rows(line), columns(column), errorCode(0) {
+    data = new int*[rows];
+    for (int i = 0; i < rows; i++) {
+        data[i] = new int[columns];
+        for (int j = 0; j < columns; j++) {
+            data[i][j] = 0;
+        }
+    }
+}
+
+Matrix::Matrix(const Matrix& other) : rows(other.rows), columns(other.columns), errorCode(0) {
+    data = new int*[rows];
+    for (int i = 0; i < rows; i++) {
+        data[i] = new int[columns];
+        for (int j = 0; j < columns; j++) {
+            data[i][j] = other.data[i][j];
+        }
+    }
+}
+
+Matrix::~Matrix() {
+    for (int i = 0; i < rows; i++) {
+        delete[] data[i];
+    }
+    delete[] data;
+}
+
+int Matrix::getElement(int i, int j) const {
+    if (i >= 0 && i < rows && j >= 0 && j < columns) {
+        return data[i][j];
+    } else {
+        return 0; 
+    }
+}
+
+
+void Matrix::setElement(int i, int j, int value) {
+    if (i >= 0 && i < rows && j >= 0 && j < columns) {
+        data[i][j] = value;
+    } else {
+        errorCode = 1; // Cod de eroare pentru acces invalid
+    }
+}
+
+int Matrix::getErrorCode() const {
+    return errorCode;
+}
+
+void Matrix::f_set_matr() {
+    data = new int*[rows];
+    for (int i = 0; i < rows; i++) {
+        data[i] = new int[columns];
+        for (int j = 0; j < columns; j++) {
+            std::cout << "Matrix[" << i << "][" << j << "] = ";
+            std::cin >> data[i][j];
+        }
+    }
+}
+
+void Matrix::f_show() {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            std::cout << "\t" << data[i][j] << "\t";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void Matrix::f_addition(const Matrix& matrix) {
+    if (rows == matrix.rows && columns == matrix.columns) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                data[i][j] += matrix.data[i][j];
+            }
+        }
+    } else {
+        errorCode = 2; // Cod de eroare pentru dimensiuni incompatibile
+    }
+}
+
+void Matrix::f_subtract(const Matrix& matrix) {
+    if (rows == matrix.rows && columns == matrix.columns) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                data[i][j] -= matrix.data[i][j];
+            }
+        }
+    } else {
+        errorCode = 2; // Cod de eroare pentru dimensiuni incompatibile
+    }
+}
+
+void Matrix::f_multipl_matrix(const Matrix& matrix) {
+    if (columns == matrix.rows) {
+        int** result = new int*[rows];
+        for (int i = 0; i < rows; i++) {
+            result[i] = new int[matrix.columns];
+            for (int j = 0; j < matrix.columns; j++) {
+                result[i][j] = 0;
+                for (int k = 0; k < columns; k++) {
+                    result[i][j] += data[i][k] * matrix.data[k][j];
+                }
+            }
+        }
+        for (int i = 0; i < rows; i++) {
+            delete[] data[i];
+        }
+        delete[] data;
+        data = result;
+        columns = matrix.columns;
+    } else {
+        errorCode = 2; // Cod de eroare pentru dimensiuni incompatibile
+    }
+}
+
+void Matrix::f_multipl_num(int value) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            data[i][j] *= value;
+        }
+    }
+}
+
+Matrix& Matrix::operator=(const Matrix& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    for (int i = 0; i < rows; i++) {
+        delete[] data[i];
+    }
+    delete[] data;
+
+    rows = other.rows;
+    columns = other.columns;
+    data = new int*[rows];
+    for (int i = 0; i < rows; i++) {
+        data[i] = new int[columns];
+        for (int j = 0; j < columns; j++) {
+            data[i][j] = other.data[i][j];
+        }
+    }
+
+    return *this;
+}
+
+int main() {
+    int rows, columns;
+
+    std::cout << "Introduceti numarul de randuri: ";
+    std::cin >> rows;
+    std::cout << "Introduceti numarul de coloane: ";
+    std::cin >> columns;
+
+    Matrix matrix1(rows, columns);
+    matrix1.f_set_matr();
+
+    std::cout << "Matrix 1:\n";
+    matrix1.f_show();
+
+    std::cout << "Introduceti numarul de randuri pentru Matrix 2: ";
+    std::cin >> rows;
+    std::cout << "Introduceti numarul de coloane pentru Matrix 2: ";
+    std::cin >> columns;
+
+    Matrix matrix2(rows, columns);
+    matrix2.f_set_matr();
+
+    std::cout << "Matrix 2:\n";
+    matrix2.f_show();
+
+    Matrix result = matrix1;
+
+    try {
+        result.f_addition(matrix2);
+        if (result.getErrorCode() == 2) {
+            std::cout << "Adunarea matricelor: Eroare - Dimensiunile sunt incompatibile.\n";
+        } else {
+            std::cout << "Rezultatul adunării matricelor:\n";
+            result.f_show();
+        }
+    } catch (const std::invalid_argument& e) {
+        std::cout << "Adunarea matricelor: " << e.what() << std::endl;
+    }
+
+    result = matrix1;
+
+    try {
+        result.f_subtract(matrix2);
+        if (result.getErrorCode() == 2) {
+            std::cout << "Scăderea matricelor: Eroare - Dimensiunile sunt incompatibile.\n";
+        } else {
+            std::cout << "Rezultatul scăderii matricelor (Matricea 1 - Matricea 2):\n";
+            result.f_show();
+        }
+    } catch (const std::invalid_argument& e) {
+        std::cout << "Scăderea matricelor: " << e.what() << std::endl;
+    }
+
+    result = matrix1;
+
+    try {
+        result.f_multipl_matrix(matrix2);
+        if (result.getErrorCode() == 2) {
+            std::cout << "Înmulțirea matricelor: Eroare - Dimensiunile sunt incompatibile.\n";
+        } else {
+            std::cout << "Rezultatul înmulțirii matricelor:\n";
+            result.f_show();
+        }
+    } catch (const std::invalid_argument& e) {
+        std::cout << "Înmulțirea matricelor: " << e.what() << std::endl;
+    }
+
+    int scalar;
+    std::cout << "Introduceți o valoare scalară pentru înmulțire: ";
+    std::cin >> scalar;
+    result = matrix1;
+    result.f_multipl_num(scalar);
+    std::cout << "Matricea 1 înmulțită cu " << scalar << ":\n";
+    result.f_show();
+
+    return 0;
+}
