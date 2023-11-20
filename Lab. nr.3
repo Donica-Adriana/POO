@@ -1,0 +1,335 @@
+a) #include <iostream>
+
+class Bool {
+    int value;
+
+public:
+    // Constructor cu parametru implicit
+    Bool(int val = 0) : value(val) {}
+
+    // Destructor
+    ~Bool() {
+        std::cout << "Destructorul a cerut Bool cu ​​valoare: " << value << std::endl;
+    }
+
+    // Metode pentru operatorii logici
+    Bool operator+(const Bool& other) const {
+        return Bool(value || other.value);
+    }
+
+    Bool operator*(const Bool& other) const {
+        return Bool(value && other.value);
+    }
+
+    Bool operator^(const Bool& other) const {
+        return Bool(value != other.value);
+    }
+
+    // Funcții prietene pentru operatorii de comparație
+    friend bool operator==(const Bool& left, const Bool& right);
+    friend bool operator!=(const Bool& left, const Bool& right);
+
+    // Supraincarcarea operatorilor pentru lucrul cu int
+    Bool operator+(int intValue) const {
+        return Bool(value || (intValue != 0));
+    }
+
+    Bool operator*(int intValue) const {
+        return Bool(value && (intValue != 0));
+    }
+
+    Bool operator^(int intValue) const {
+        return Bool(value != (intValue != 0));
+    }
+
+    // Metoda pentru a obține valoarea de la utilizator
+    void get() {
+        int n;
+        std::cin >> n;
+        if (n == 0) {
+            value = 0;
+        } else {
+            value = 1;
+        }
+    }
+
+    // Afisare valoare
+    void show() const {
+        std::cout << value << std::endl;
+    }
+};
+
+// Implementarea funcțiilor prietene pentru operatorii de comparație
+bool operator==(const Bool& left, const Bool& right) {
+    return left.value == right.value;
+}
+
+bool operator!=(const Bool& left, const Bool& right) {
+    return left.value != right.value;
+}
+
+// Meniul de navigare
+void displayMenu() {
+    std::cout << "\n===== Meniu =====\n";
+    std::cout << "[1] Introducerea variabilelor logice\n";
+    std::cout << "[2] Afisarea variabilelor logice\n";
+    std::cout << "[3] Operatiunea OR\n";
+    std::cout << "[4] Operatiunea AND\n";
+    std::cout << "[5] Operatirunea XOR\n";
+    std::cout << "[6] Verifica pentru egalitate\n";
+    std::cout << "[7] Iesire\n";
+    std::cout << "=================\n";
+}
+
+int main() {
+    Bool A, B;
+    Bool result;
+
+    int op;
+    while (true) {
+        displayMenu();
+        std::cout << "Selecteaza o optiune: ";
+        std::cin >> op;
+
+        switch (op) {
+            case 1:
+                std::cout << "Introduceti prima variabila (0 sau 1): ";
+                A.get();
+                std::cout << "Introduceti a doua variabila (0 sau 1): ";
+                B.get();
+                std::cout << "Introducerea a avut loc cu succes!\n";
+                break;
+            case 2:
+                std::cout << "Variabilele logice:\n";
+                std::cout << "A: ";
+                A.show();
+                std::cout << "B: ";
+                B.show();
+                break;
+            case 3:
+                result = A + B;
+                std::cout << " A + B = ";
+                result.show();
+                break;
+            case 4:
+                result = A * B;
+                std::cout << " A * B = ";
+                result.show();
+                break;
+            case 5:
+                result = A ^ B;
+                std::cout << " A ^ B = ";
+                result.show();
+                break;
+            case 6:
+                std::cout << "A == B: " << (A == B) << std::endl;
+                std::cout << "A != B: " << (A != B) << std::endl;
+                break;
+            case 7:
+                return 0;
+            default:
+                std::cout << "Optiune invalida! Reincearca.\n";
+        }
+    }
+
+    return 0;
+}
+
+b) #include <iostream>
+#include <cstring>
+
+class String {
+private:
+    char* data;
+
+public:
+    // Constructor implicit
+    String() : data(nullptr) {}
+
+    // Constructor cu parametri
+    String(const char* str) {
+        if (str) {
+            data = new char[strlen(str) + 1];
+            strcpy(data, str);
+        } else {
+            data = nullptr;
+        }
+    }
+
+    // Constructor de copiere
+    String(const String& other) {
+        data = new char[other.length() + 1];
+        strcpy(data, other.data);
+    }
+
+    // Destructor
+    ~String() {
+        delete[] data;
+    }
+
+    // Operator de adunare a șirurilor
+    String operator+(const String& other) const {
+        String result;
+        result.data = new char[length() + other.length() + 1];
+        strcpy(result.data, data);
+        strcat(result.data, other.data);
+        return result;
+    }
+
+    // Operator de atribuire
+    void operator=(const String& other) {
+        if (this != &other) {
+            delete[] data;
+            data = new char[other.length() + 1];
+            strcpy(data, other.data);
+        }
+    }
+
+    // Operator de atribuire cu un șir de caractere
+    void operator=(const char* str) {
+        delete[] data;
+        if (str) {
+            data = new char[strlen(str) + 1];
+            strcpy(data, str);
+        } else {
+            data = nullptr;
+        }
+    }
+
+    // Operator de concatenare
+    void operator+=(const String& other) {
+        char* temp = new char[length() + other.length() + 1];
+        strcpy(temp, data);
+        strcat(temp, other.data);
+        delete[] data;
+        data = temp;
+    }
+
+    // Operator de comparare ==
+    friend bool operator==(const String& left, const String& right) {
+        return strcmp(left.data, right.data) == 0;
+    }
+
+    // Operator de comparare !=
+    friend bool operator!=(const String& left, const String& right) {
+        return !(left == right);
+    }
+
+    // Operator de comparare <
+    friend bool operator<(const String& left, const String& right) {
+        return strcmp(left.data, right.data) < 0;
+    }
+
+    // Operator de comparare >
+    friend bool operator>(const String& left, const String& right) {
+        return strcmp(left.data, right.data) > 0;
+    }
+
+    // Operator de acces la un anumit caracter
+    char operator[](int index) const {
+        return data[index];
+    }
+
+    // Supraincarcare operator << pentru afisarea obiectului
+    friend std::ostream& operator<<(std::ostream& os, const String& str) {
+        os << str.data;
+        return os;
+    }
+
+    // Supraincarcare operator >> pentru citirea in obiect
+    friend std::istream& operator>>(std::istream& is, String& str) {
+        char buffer[1000];
+        is.getline(buffer, sizeof(buffer));
+        str = buffer;
+        return is;
+    }
+
+    // Returneaza lungimea șirului
+    int length() const {
+        return (data) ? strlen(data) : 0;
+    }
+};
+
+int main() {
+    String str1, str2, result;
+    int choice;
+
+    do {
+        std::cout << "\n1. Introducere sir 1\n";
+        std::cout << "2. Introducere sir 2\n";
+        std::cout << "3. Afisare siruri\n";
+        std::cout << "4. Adunare siruri\n";
+        std::cout << "5. Atribuire sir 1 = sir 2\n";
+        std::cout << "6. Concatenare sir 1 += sir 2\n";
+        std::cout << "7. Comparare siruri\n";
+        std::cout << "8. Acces caracter la pozitie\n";
+        std::cout << "9. Iesire\n";
+        std::cout << "Alege operatia: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                std::cout << "Introdu sirul 1: ";
+                std::cin.ignore();  // Ignoră orice caracter rămas în buffer
+                std::cin >> str1;
+                break;
+
+            case 2:
+                std::cout << "Introdu sirul 2: ";
+                std::cin.ignore();  // Ignoră orice caracter rămas în buffer
+                std::cin >> str2;
+                break;
+
+            case 3:
+                std::cout << "Sirul 1: " << str1 << "\n";
+                std::cout << "Sirul 2: " << str2 << "\n";
+                break;
+
+            case 4:
+                result = str1 + str2;
+                std::cout << "Rezultat adunare: " << result << "\n";
+                break;
+
+            case 5:
+                str1 = str2;
+                std::cout << "Atribuire reusita.\n";
+                break;
+
+            case 6:
+                str1 += str2;
+                std::cout << "Concatenare reusita.\n";
+                break;
+
+            case 7:
+                if (str1 == str2) {
+                    std::cout << "Sirurile sunt egale.\n";
+                } else if (str1 < str2) {
+                    std::cout << "Sirul 1 este mai mic decat sirul 2.\n";
+                } else {
+                    std::cout << "Sirul 1 este mai mare decat sirul 2.\n";
+                }
+                break;
+
+            case 8:
+                int index;
+                std::cout << "Introdu pozitia: ";
+                std::cin >> index;
+                if (index >= 0 && index < str1.length()) {
+                    std::cout << "Caracterul la pozitia " << index << " este: " << str1[index] << "\n";
+                } else {
+                    std::cout << "Pozitie invalida.\n";
+                }
+                break;
+
+            case 9:
+                std::cout << "La revedere!\n";
+                break;
+
+            default:
+                std::cout << "Optiune invalida.\n";
+        }
+
+    } while (choice != 9);
+
+    return 0;
+}
