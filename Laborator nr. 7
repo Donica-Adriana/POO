@@ -1,0 +1,207 @@
+a) #include <iostream>
+using namespace std;
+
+template <typename T>
+void transformarePerechi(T *arr, int n) {
+    T *result = new T[n];
+
+    for (int i = 0; i < n; i += 2) {
+        result[i] = arr[i] + arr[i + 1];
+        result[i + 1] = arr[i] - arr[i + 1];
+    }
+
+    cout << "Lista originala :" << endl;
+    for (int i = 0; i < n; i++)
+        cout << arr[i] << " ";
+    cout << "\n\nLista transformata :" << endl;
+    for (int i = 0; i < n; i++)
+        cout << result[i] << " ";
+    cout << endl << endl;
+
+    delete[] result;
+}
+
+template <typename T>
+void citesteArray(T *arr, int n) {
+    cout << "Introduceti elementele listei:\n";
+    for (int i = 0; i < n; ++i) {
+        cout << "Element " << i + 1 << ": ";
+        cin >> arr[i];
+    }
+}
+
+int main() {
+    int n, ch;
+    cout << "Introduceti dimensiunea listei >> ";
+    cin >> n;
+    cout << "Lista cu elemente intregi sau cu elemente in virgula mobila? (1/0) >> ";
+    cin >> ch;
+
+    if (ch == 1) {
+        int *arr = new int[n];
+        citesteArray(arr, n);
+        transformarePerechi(arr, n);
+        delete[] arr;
+    } else if (ch == 0) {
+        float *arr = new float[n];
+        citesteArray(arr, n);
+        transformarePerechi(arr, n);
+        delete[] arr;
+    } else {
+        cout << "Alegere gresita !!" << endl;
+    }
+
+    return 0;
+}
+
+b) #include <iostream>
+using namespace std;
+
+template <typename T>
+class Matrix {
+private:
+    T **matrix;
+    int rows;
+    int cols;
+
+public:
+    Matrix(int rows, int cols) : rows(rows), cols(cols) {
+        // Alocare memorie pentru matrice
+        matrix = new T *[rows];
+        for (int i = 0; i < rows; ++i) {
+            matrix[i] = new T[cols];
+        }
+    }
+
+    ~Matrix() {
+        // Dezalocare memorie pentru matrice
+        for (int i = 0; i < rows; ++i) {
+            delete[] matrix[i];
+        }
+        delete[] matrix;
+    }
+
+    int getRows() const {
+        return rows;
+    }
+
+    int getCols() const {
+        return cols;
+    }
+
+    T *operator[](int index) const {
+        return matrix[index];
+    }
+
+    Matrix<T> operator+(const Matrix<T> &other) const {
+        Matrix<T> result(rows, cols);
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                result.matrix[i][j] = matrix[i][j] + other.matrix[i][j];
+            }
+        }
+        return result;
+    }
+
+    Matrix<T> operator-(const Matrix<T> &other) const {
+        Matrix<T> result(rows, cols);
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                result.matrix[i][j] = matrix[i][j] - other.matrix[i][j];
+            }
+        }
+        return result;
+    }
+
+    Matrix<T> operator*(const Matrix<T> &other) const {
+        Matrix<T> result(rows, other.cols);
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < other.cols; ++j) {
+                result.matrix[i][j] = 0;
+                for (int k = 0; k < cols; ++k) {
+                    result.matrix[i][j] += matrix[i][k] * other.matrix[k][j];
+                }
+            }
+        }
+        return result;
+    }
+
+    friend istream &operator>>(istream &in, Matrix<T> &obj) {
+        for (int i = 0; i < obj.rows; ++i) {
+            for (int j = 0; j < obj.cols; ++j) {
+                cout << "M[" << i + 1 << "][" << j + 1 << "] = ";
+                in >> obj.matrix[i][j];
+            }
+        }
+        return in;
+    }
+
+    friend ostream &operator<<(ostream &out, const Matrix<T> &obj) {
+        for (int i = 0; i < obj.rows; ++i) {
+            for (int j = 0; j < obj.cols; ++j) {
+                out << obj.matrix[i][j] << "\t";
+            }
+            out << endl;
+        }
+        return out;
+    }
+};
+
+int main() {
+    int rows, cols;
+    int dataType;
+
+    cout << "Input num of rows >> ";
+    cin >> rows;
+    cout << "Input num of cols >> ";
+    cin >> cols;
+
+    cout << "Choose data type (0 for int, 1 for double): ";
+    cin >> dataType;
+
+    if (dataType == 0) {
+        Matrix<int> obj1(rows, cols);
+        cout << "Input values for the first matrix:" << endl;
+        cin >> obj1;
+
+        Matrix<int> obj2(rows, cols);
+        cout << "Input values for the second matrix:" << endl;
+        cin >> obj2;
+
+        cout << "First matrix:" << endl << obj1 << endl;
+        cout << "Second matrix:" << endl << obj2 << endl;
+
+        Matrix<int> sum = obj1 + obj2;
+        cout << "Matrix addition:" << endl << sum << endl;
+
+        Matrix<int> diff = obj1 - obj2;
+        cout << "Matrix subtraction:" << endl << diff << endl;
+
+        Matrix<int> product = obj1 * obj2;
+        cout << "Matrix multiplication:" << endl << product << endl;
+    } else if (dataType == 1) {
+        Matrix<double> obj1(rows, cols);
+        cout << "Input values for the first matrix:" << endl;
+        cin >> obj1;
+
+        Matrix<double> obj2(rows, cols);
+        cout << "Input values for the second matrix:" << endl;
+        cin >> obj2;
+
+        cout << "First matrix:" << endl << obj1 << endl;
+        cout << "Second matrix:" << endl << obj2 << endl;
+
+        Matrix<double> sum = obj1 + obj2;
+        cout << "Matrix addition:" << endl << sum << endl;
+
+        Matrix<double> diff = obj1 - obj2;
+        cout << "Matrix subtraction:" << endl << diff << endl;
+
+        Matrix<double> product = obj1 * obj2;
+        cout << "Matrix multiplication:" << endl << product << endl;
+    } else {
+        cout << "Invalid choice!" << endl;
+    }
+
+    return 0;
+}
