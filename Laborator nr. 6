@@ -1,0 +1,218 @@
+#include <iostream>
+using namespace std;
+
+class Container
+{
+public:
+    virtual void insert(int) = 0;
+    virtual void extract() = 0;
+    virtual void display() = 0;
+    virtual ~Container() {} 
+};
+
+class Stack : public Container
+{
+private:
+    int *stackArray;
+    int top;
+    int capacity;
+
+public:
+    Stack(int size) : capacity(size), top(-1)
+    {
+        stackArray = new int[capacity];
+    }
+
+    ~Stack()
+    {
+        delete[] stackArray;
+    }
+
+    void insert(int value) override
+    {
+        if (top < capacity - 1)
+        {
+            stackArray[++top] = value;
+            cout << "Inserted: " << value << " into Stack." << endl;
+        }
+        else
+        {
+            cout << "Stack is full. Cannot insert." << endl;
+        }
+    }
+
+    void extract() override
+    {
+        if (top >= 0)
+        {
+            cout << "Extracted: " << stackArray[top--] << " from Stack." << endl;
+        }
+        else
+        {
+            cout << "Stack is empty. Cannot extract." << endl;
+        }
+    }
+
+    void display() override
+    {
+        if (top >= 0)
+        {
+            cout << "Stack elements: ";
+            for (int i = 0; i <= top; ++i)
+            {
+                cout << stackArray[i] << " ";
+            }
+            cout << endl;
+        }
+        else
+        {
+            cout << "Stack is empty." << endl;
+        }
+    }
+};
+
+class Queue : public Container
+{
+private:
+    int *queueArray;
+    int front;
+    int rear;
+    int capacity;
+
+public:
+    Queue(int size) : capacity(size), front(-1), rear(-1)
+    {
+        queueArray = new int[capacity];
+    }
+
+    ~Queue()
+    {
+        delete[] queueArray;
+    }
+
+    void insert(int value) override
+    {
+        if (rear < capacity - 1)
+        {
+            queueArray[++rear] = value;
+            if (front == -1)
+            {
+                front = 0;
+            }
+            cout << "Inserted: " << value << " into Queue." << endl;
+        }
+        else
+        {
+            cout << "Queue is full. Cannot insert." << endl;
+        }
+    }
+
+    void extract() override
+    {
+        if (front <= rear && front != -1)
+        {
+            cout << "Extracted: " << queueArray[front++] << " from Queue." << endl;
+            if (front > rear)
+            {
+                front = rear = -1;
+            }
+        }
+        else
+        {
+            cout << "Queue is empty. Cannot extract." << endl;
+        }
+    }
+
+    void display() override
+    {
+        if (front <= rear && front != -1)
+        {
+            cout << "Queue elements: ";
+            for (int i = front; i <= rear; ++i)
+            {
+                cout << queueArray[i] << " ";
+            }
+            cout << endl;
+        }
+        else
+        {
+            cout << "Queue is empty." << endl;
+        }
+    }
+};
+
+int main()
+{
+    const int size = 5;
+    Container *containers[2]; 
+
+    containers[0] = new Stack(size);
+    containers[1] = new Queue(size);
+
+    int containerChoice, operationChoice, value;
+
+    do
+    {
+        cout << "[1]. Use Stack" << endl;
+        cout << "[2]. Use Queue" << endl;
+        cout << "[0]. Exit" << endl;
+        cout << "Enter container choice: ";
+        cin >> containerChoice;
+
+        if (containerChoice == 0)
+        {
+            break;
+        }
+
+        if (containerChoice < 1 || containerChoice > 2)
+        {
+            cout << "Invalid choice. Please try again." << endl;
+            continue;
+        }
+
+        do
+        {
+            cout << "[1]. Insert" << endl;
+            cout << "[2]. Extract" << endl;
+            cout << "[3]. Display" << endl;
+            cout << "[0]. Back" << endl;
+            cout << "Enter operation choice: ";
+            cin >> operationChoice;
+
+            if (operationChoice == 0)
+            {
+                break;
+            }
+
+            if (operationChoice < 1 || operationChoice > 3)
+            {
+                cout << "Invalid choice. Please try again." << endl;
+                continue;
+            }
+
+            switch (operationChoice)
+            {
+            case 1:
+                cout << "Enter value to insert: ";
+                cin >> value;
+                containers[containerChoice - 1]->insert(value);
+                break;
+
+            case 2:
+                containers[containerChoice - 1]->extract();
+                break;
+
+            case 3:
+                containers[containerChoice - 1]->display();
+                break;
+            }
+
+        } while (true);
+
+    } while (true);
+
+    delete containers[0];
+    delete containers[1];
+
+    return 0;
+}
