@@ -1,0 +1,199 @@
+a) #include <iostream>
+#include <string>
+
+class TransportAerian {
+public:
+    TransportAerian(int capacitate) : capacitate(capacitate) {
+    }
+
+    ~TransportAerian() {
+    }
+
+    void AfiseazaInfoTransport() const {
+        std::cout << "Transport aerian cu o capacitate de pasageri: " << capacitate << " persoane\n";
+    }
+
+private:
+    int capacitate;
+};
+
+class TransportPasageri {
+public:
+    TransportPasageri(int numarPasageri) : numarPasageri(numarPasageri) {
+    }
+
+    ~TransportPasageri() {
+    }
+
+    void AfiseazaInfoPasageri() const {
+        std::cout << "Numarul de pasageri: " << numarPasageri << " pasageri\n";
+    }
+
+private:
+    int numarPasageri;
+};
+
+class Boeing747 : public TransportAerian, public TransportPasageri {
+public:
+    Boeing747(int capacitate, int numarPasageri, const std::string& model)
+        : TransportAerian(capacitate), TransportPasageri(numarPasageri), model(model) {
+    }
+
+    ~Boeing747() {
+    }
+
+    void AfiseazaInfoBoeing747() const {
+        std::cout << "Modelul liner-ului Boeing 747: " << model << "\n";
+    }
+
+private:
+    std::string model;
+};
+
+// Funcție pentru citirea datelor de la tastatură
+void CitesteDate(Boeing747& avion) {
+    int capacitate, numarPasageri;
+    std::string model;
+
+    std::cout << "Introduceti capacitatea avionului: ";
+    std::cin >> capacitate;
+
+    std::cout << "Introduceti numarul de pasageri: ";
+    std::cin >> numarPasageri;
+
+    std::cin.ignore(); // Ignoram newline-ul ramas in buffer
+
+    std::cout << "Introduceti modelul avionului: ";
+    std::getline(std::cin, model);
+
+    // Setam datele citite in instanta de Boeing747
+    avion = Boeing747(capacitate, numarPasageri, model);
+}
+
+int main() {
+    Boeing747 avion(0, 0, ""); // Initializare cu date fictive
+
+    // Citirea datelor de la tastatura
+    CitesteDate(avion);
+
+    // Afisarea informatiilor
+    avion.AfiseazaInfoTransport();
+    avion.AfiseazaInfoPasageri();
+    avion.AfiseazaInfoBoeing747();
+
+    return 0;
+}
+
+b) #include <iostream>
+#include <string>
+
+class Transport {
+public:
+    Transport(const std::string& nume) : nume(nume) {
+    }
+
+    virtual ~Transport() {
+    }
+
+    void AfiseazaInfoTransport() const {
+        std::cout << "Tip de transport: " << nume << "\n";
+    }
+
+private:
+    std::string nume;
+};
+
+class TransportAerian : virtual public Transport {
+public:
+    TransportAerian(const std::string& nume, int capacitate)
+        : Transport(nume), capacitate(capacitate) {
+    }
+
+    ~TransportAerian() override {
+    }
+
+    void AfiseazaInfoTransportAerian() const {
+        std::cout << "Capacitatea de transport aerian: " << capacitate << " persoane\n";
+    }
+
+    void Decoleaza() const {
+        std::cout << "Avionul a decolat!\n";
+    }
+
+private:
+    int capacitate;
+};
+
+class TransportDePasageri : virtual public Transport {
+public:
+    TransportDePasageri(const std::string& nume, int numarPasageri)
+        : Transport(nume), numarPasageri(numarPasageri) {
+    }
+
+    ~TransportDePasageri() override {
+    }
+
+    void AfiseazaInfoTransportDePasageri() const {
+        std::cout << "Numarul de pasageri: " << numarPasageri << " pasageri\n";
+    }
+
+    void IncarcaPasageri() const {
+        std::cout << "Pasagerii au fost incarcati!\n";
+    }
+
+private:
+    int numarPasageri;
+};
+
+class Boeing747 : public TransportAerian, public TransportDePasageri {
+public:
+    Boeing747(const std::string& model, int capacitate, int numarPasageri)
+        : Transport("Boeing747"), TransportAerian("Aerian", capacitate), TransportDePasageri("Pasageri", numarPasageri), model(model) {
+    }
+
+    ~Boeing747() override {
+    }
+
+    void AfiseazaInfoBoeing747() const {
+        std::cout << "Modelul liner-ului Boeing 747: " << model << "\n";
+    }
+
+    void Zboara() const {
+        std::cout << "Boeing 747 a decolat și zboară acum!\n";
+    }
+
+private:
+    std::string model;
+};
+
+// Funcție pentru citirea datelor de la tastatură
+Boeing747 CitesteDate() {
+    std::string model;
+    int capacitate, numarPasageri;
+
+    std::cout << "Introduceti modelul avionului: ";
+    std::getline(std::cin, model);
+
+    std::cout << "Introduceti capacitatea avionului: ";
+    std::cin >> capacitate;
+
+    std::cout << "Introduceti numarul de pasageri: ";
+    std::cin >> numarPasageri;
+
+    return Boeing747(model, capacitate, numarPasageri);
+}
+
+int main() {
+    Boeing747 avion = CitesteDate();
+
+    // Afisarea informatiilor si apelarea functiilor specifice fiecarei clase
+    avion.TransportAerian::AfiseazaInfoTransport();
+    avion.TransportAerian::AfiseazaInfoTransportAerian();
+    avion.TransportAerian::Decoleaza();
+    avion.TransportDePasageri::AfiseazaInfoTransportDePasageri();
+    avion.TransportDePasageri::IncarcaPasageri();
+    avion.AfiseazaInfoBoeing747();
+    avion.Zboara();
+
+    return 0;
+}
